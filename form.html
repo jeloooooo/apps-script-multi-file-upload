@@ -38,12 +38,12 @@
 							<div class="row">
 								<div class="input-field col s12">
 									<p>Resume</p>
-									<input id="filesToUpload" name="filesToUpload" type="file" placeholder="Select a file from your computer" required aria-required="true" multiple>
+									<input id="filesToUpload" name="filesToUpload" type="file" onchange="return validateFile()" placeholder="Select a file from your computer" required aria-required="true" multiple>
 								</div>
 							</div>
                             <div class="row">
                             <div class="input-field col m6 s6">
-									<input class="waves-effect waves-light btn-large btnSubmit" style="background-color:#0c9b56" type="button" value="Submit" onclick="uploadFiles()">
+									<input id="btnSubmit" class="waves-effect waves-light btn-large btnSubmit" style="background-color:#0c9b56" type="button" value="Submit" onclick="uploadFiles()">
 								</div>
                             </div>
 							<div class="row" class="input-field col m6 s6">
@@ -59,14 +59,13 @@
                 </div>                
             </div>
             <div class="disclaimer">
-              <p>This form was created using <a href="http://www.labnol.org/internet/file-upload-google-forms/29170/" target="_blank">Google Scripts</a> from <a href="https://ctrlq.org/">ctrlq.org</a>.</p>
-              <p>Please <a href="https://gum.co/GA14?wanted=true" target="_blank">buy a license</a> to use this script in your project.</p>
+              <p>This form was created for <a href="https://titahomecare.com" target="_blank">Tita Homecare</a>.</p>
+              <p>Please contact <a href="mailto:titahomecare@gmail.com" target="_blank">Tita Homecare</a> for any questions/concerns regarding this form.</p>
             </div>
         </div>
     </div>
     </form>
 	<script>
-		// get from URL
 		var rootFolderId = 'GoogleDriveFolderID';
 		var numUploads = {};
 		numUploads.done = 0;
@@ -111,13 +110,72 @@
 		}
 		function onFileUploaded(r) {
 			numUploads.done++;
-			document.getElementById('output').innerHTML = 'uploaded '
+			document.getElementById('output').innerHTML = 'Uploaded '
 					+ r.fileName + ' (' + numUploads.done + '/'
 					+ numUploads.total + ' files).';
 			if (numUploads.done == numUploads.total) {
 				document.getElementById('output').innerHTML = 'Upload Successful. You may now go back and continue your application form.';
+				var btnSubmit = document.getElementById('btnSubmit');
+				btnSubmit.style.display = "none";
 				numUploads.done = 0;
 			}
+		}
+		function validateFile() {
+			if (!fileExtValidation()) {
+				// if wrong file extension, return immediately
+				return false;
+			}
+			// continue with file size validation
+			fileSizeValidation();
+		}
+		function fileExtValidation() {
+			var _validFileExtensions = [".pdf", ".doc", ".docx"];   
+			var fileInput = document.getElementById('filesToUpload');
+			var arrInputs = fileInput.files;
+			for (var i = 0; i < arrInputs.length; i++) {
+				var sFileName = arrInputs[i].name;
+					if (sFileName.length > 0) {
+						var blnValid = false;
+						for (var j = 0; j < _validFileExtensions.length; j++) {
+							var sCurExtension = _validFileExtensions[j];
+							if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+								blnValid = true;
+								break;
+							}
+						}
+						
+						if (!blnValid) {
+							alert("The specified file '" + sFileName + "' could not be uploaded. Only the following filetypes are accepted: " + _validFileExtensions.join(", "));
+							fileInput.value = '';
+							return false;
+						}
+					}
+			}
+		  
+			return true;
+		}
+		function fileSizeValidation() {
+			var fileInput = document.getElementById('filesToUpload');
+			var allFiles = fileInput.files;
+			for (var i = 0; i < allFiles.length; i++) {
+				// Validate filesize
+				if(allFiles[i].size > 3145728){
+				   alert("The specified file '" + allFiles[i].name + "' could not be uploaded. The file is " + formatBytes(allFiles[i].size) + " exceeding the maximum file size of 3 MB.");
+				   fileInput.value = '';
+				   return false;
+				}
+				else {
+					return true;
+				}
+			};			
+		}
+		function formatBytes(bytes,decimals) {
+		   if(bytes == 0) return '0 Bytes';
+		   var k = 1024,
+			   dm = decimals || 2,
+			   sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+			   i = Math.floor(Math.log(bytes) / Math.log(k));
+		   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 		}
 	</script>
 </body>
