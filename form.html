@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style type="text/css">
+		.picker__holder{z-index:9999}
+		.ctrlq-description {font-size:90%}
+		body{background-color:#cde5d5}.picker{position:static}form label,form p{font-size:120%}.signature{border:2px dashed #ccc;background-color:#fafafa;margin-bottom:20px}
+		.disclaimer{color:#646464;margin:16px 0 32px;padding:0 16px;text-align:center;font:400 12px Roboto,Helvetica,Arial,sans-serif}.disclaimer a{color:#0c9b56}#credit{display:none}
+		.ctrlqHeaderMast{height:278px;background-image:linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 65%, rgba(0, 0, 0, 0.4) 100%), url(https://lh3.googleusercontent.com/8TC2TY1ZrIAxKT_BrzClXtP3us2Hg5B5f-nVWXJIkzGoW_aVGf6ae_OyvhOb6FysisJBoZiekA=w1200)}.ctrlqFormContent{color:rgba(0,0,0,.87);padding:20px 35px}.ctrlqFormContentWrapper{display:-webkit-box;display:-moz-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;box-orient:vertical;-webkit-flex-direction:column;flex-direction:column}.ctrlqAccent{background-color:#08a275;height:8px}.ctrlqCenteredContent{margin:auto;width:600px}.ctrlqFormCard{background-color:#fff;margin-bottom:48px;-webkit-box-shadow:0 1px 4px 0 rgba(0,0,0,.37);box-shadow:0 1px 4px 0 rgba(0,0,0,.37);word-wrap:break-word}.ctrlqFormCard:first-of-type{margin-top:-100px}.ctrlqHeaderTitle{-webkit-box-sizing:border-box;box-sizing:border-box;font-size:34px;line-height:135%;max-width:100%;min-width:0;margin-bottom:22px}div#recaptcha_error,div#signature_error,div.error{position:relative;left:0;font-size:.9rem;color:#FF4081}@media (max-width:660px){.ctrlqHeaderMast{height:122px}.ctrlqFormCard:first-of-type{margin-top:-50px}.ctrlqCenteredContent{width:90%}}div.error{top:-1rem;-webkit-transform:translateY(0);-ms-transform:translateY(0);-o-transform:translateY(0);transform:translateY(0)}div#recaptcha_error,div#signature_error{top:.5rem;-webkit-transform:translateY(0);-ms-transform:translateY(0);-o-transform:translateY(0);transform:translateY(0)}</style><style>.picker-dialog-frame{width:100%;height:100%;border:0;overflow:hidden}.picker-dialog-bg{position:absolute;top:0;left:0;background-color:#fff;z-index:1000}.picker-dialog{position:absolute;top:0;left:0;background-color:#fff;border:1px solid #acacac;width:auto;padding:0;z-index:1001;overflow:auto;-moz-box-shadow:rgba(0,0,0,.2) 0 4px 16px;-webkit-box-shadow:rgba(0,0,0,.2) 0 4px 16px;box-shadow:rgba(0,0,0,.2) 0 4px 16px}.picker-dialog-content{font-size:0;padding:0}.picker-dialog-title,.picker-dialog-buttons{display:none}
+	</style>
+  </head>
+<body>
+<form id="uploaderForm">
+<div class="ctrlqFormContentWrapper">
+        <div class="ctrlqHeaderMast"></div>
+        <div class="ctrlqCenteredContent">
+            <div class="ctrlqFormCard">
+                <div class="ctrlqAccent"></div>
+                <div class="ctrlqFormContent">
+                    <form novalidate="novalidate">
+                       <div class="row"><div class="input-field col s12">
+							<h4>File Upload Form</h4>
+							<p><span class="ctrlq-description">Please upload your Resume and Certificates.</span></p>
+							</div></div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="applicantName" class="validate" required placeholder="Full Name" name="applicantName" type="text" value="" aria-required="true">
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+										<input id="applicantEmail" class="validate" required placeholder="Email Address" name="applicantEmail" type="email" value="" aria-required="true">
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<p>Resume</p>
+									<input id="filesToUpload" name="filesToUpload" type="file" placeholder="Select a file from your computer" required aria-required="true" multiple>
+								</div>
+							</div>
+                            <div class="row">
+                            <div class="input-field col m6 s6">
+									<input class="waves-effect waves-light btn-large btnSubmit" style="background-color:#0c9b56" type="button" value="Submit" onclick="uploadFiles()">
+								</div>
+                            </div>
+							<div class="row" class="input-field col m6 s6">
+								<div id="output" class="input-field col m12 s6" style="color:#0c9b56"></div>
+							</div>
+                    </form>
+                    <div class="row message" style="display:none">
+                      <div id="progressNew" class="input-field col s12">
+                       <h4 id="returnStatus"></h4>
+                       <p id="returnMessage"></p>
+                      </div>
+                    </div>
+                </div>                
+            </div>
+            <div class="disclaimer">
+              <p>This form was created using <a href="http://www.labnol.org/internet/file-upload-google-forms/29170/" target="_blank">Google Scripts</a> from <a href="https://ctrlq.org/">ctrlq.org</a>.</p>
+              <p>Please <a href="https://gum.co/GA14?wanted=true" target="_blank">buy a license</a> to use this script in your project.</p>
+            </div>
+        </div>
+    </div>
+    </form>
+	<script>
+		// get from URL
+		var rootFolderId = 'GoogleDriveFolderID';
+		var numUploads = {};
+		numUploads.done = 0;
+		numUploads.total = 0;
+		// Upload the files into a folder in drive
+		// This is set to send them all to one folder (specificed in the .gs file)
+		function uploadFiles() {
+			var allFiles = document.getElementById('filesToUpload').files;
+			var applicantName = document.getElementById('applicantName').value;
+			if (!applicantName) {
+				window.alert('Missing applicant name!');
+			}
+			var applicantEmail = document.getElementById('applicantEmail').value;
+			if (!applicantEmail) {
+				window.alert('Missing applicant email!');
+			}
+			var folderName = applicantName + ' ' + applicantEmail;
+			if (allFiles.length == 0) {
+				window.alert('No file selected!');
+			} else {
+				numUploads.total = allFiles.length;
+				google.script.run.withSuccessHandler(function(r) {
+					// send files after the folder is created...
+					for (var i = 0; i < allFiles.length; i++) {
+						// Send each file at a time
+						uploadFile(allFiles[i], r.folderId);
+					}
+				}).createFolder(rootFolderId, folderName);
+			}
+		}
+		function uploadFile(file, folderId) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var content = reader.result;
+				document.getElementById('output').innerHTML = 'Uploading '
+						+ file.name + '...';
+				//window.alert('uploading ' + file.name + '...');				
+				google.script.run.withSuccessHandler(onFileUploaded)
+						.uploadFile(content, file.name, folderId);
+			}
+			reader.readAsDataURL(file);
+		}
+		function onFileUploaded(r) {
+			numUploads.done++;
+			document.getElementById('output').innerHTML = 'uploaded '
+					+ r.fileName + ' (' + numUploads.done + '/'
+					+ numUploads.total + ' files).';
+			if (numUploads.done == numUploads.total) {
+				document.getElementById('output').innerHTML = 'Upload Successful. You may now go back and continue your application form.';
+				numUploads.done = 0;
+			}
+		}
+	</script>
+</body>
+</html>
