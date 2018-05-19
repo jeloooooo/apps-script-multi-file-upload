@@ -2,8 +2,10 @@
 <html>
   <head>
     <base target="_top">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!--Import Google Icon Font-->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!-- Compiled and minified CSS -->
+	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
     <style type="text/css">
 		.picker__holder{z-index:9999}
 		.ctrlq-description {font-size:90%}
@@ -20,25 +22,27 @@
             <div class="ctrlqFormCard">
                 <div class="ctrlqAccent"></div>
                 <div class="ctrlqFormContent">
-                    <form novalidate="novalidate">
+                    <form id="appForm">
                        <div class="row"><div class="input-field col s12">
 							<h4>File Upload Form</h4>
-							<p><span class="ctrlq-description">Please upload your Resume and Certificates.</span></p>
+							<p><span class="ctrlq-description">Please complete the form below and upload your resume and certificates.</span></p>
 							</div></div>
 							<div class="row">
 								<div class="input-field col s12">
-									<input id="applicantName" class="validate" required placeholder="Full Name" name="applicantName" type="text" value="" aria-required="true">
+									<input id="applicantName" class="validate" placeholder="Full Name" name="applicantName" type="text" value="" required="required" aria-required="true" data-error="Please enter your full name." >
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
-										<input id="applicantEmail" class="validate" required placeholder="Email Address" name="applicantEmail" type="email" value="" aria-required="true">
+										<input id="applicantEmail" class="validate" placeholder="Email Address" name="applicantEmail" type="email" value="" required="required" aria-required="true" >
+										<label for="applicantEmail" data-error="Please enter a valid email address."></label>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<p>Resume</p>
-									<input id="filesToUpload" name="filesToUpload" type="file" onchange="return validateFile()" placeholder="Select a file from your computer" required aria-required="true" multiple>
+									<p style="font-size:90%">*Allowed file types are .pdf, .doc, .docx. Maximum file size of 3mb.</p>
+									<input id="filesToUpload" name="filesToUpload" type="file" onchange="return validateFile()" placeholder="Select a file from your computer" required multiple>
 								</div>
 							</div>
                             <div class="row">
@@ -65,8 +69,11 @@
         </div>
     </div>
     </form>
+	
+	<!-- Compiled and minified JavaScript -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 	<script>
-		var rootFolderId = 'GoogleDriveFolderID';
+		var rootFolderId = 'GoogleDriveFolder';
 		var numUploads = {};
 		numUploads.done = 0;
 		numUploads.total = 0;
@@ -76,15 +83,18 @@
 			var allFiles = document.getElementById('filesToUpload').files;
 			var applicantName = document.getElementById('applicantName').value;
 			if (!applicantName) {
-				window.alert('Missing applicant name!');
+				window.alert('Please enter your full name.');
+				return;
 			}
 			var applicantEmail = document.getElementById('applicantEmail').value;
 			if (!applicantEmail) {
-				window.alert('Missing applicant email!');
+				window.alert('Please enter your email address.');
+				return;
 			}
 			var folderName = applicantName + ' ' + applicantEmail;
 			if (allFiles.length == 0) {
 				window.alert('No file selected!');
+				return;
 			} else {
 				numUploads.total = allFiles.length;
 				google.script.run.withSuccessHandler(function(r) {
